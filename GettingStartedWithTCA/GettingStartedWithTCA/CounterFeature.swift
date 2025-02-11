@@ -59,6 +59,14 @@ struct CounterView: View {
                     .background(Color.black.opacity(0.1))
                     .cornerRadius(10)
                     
+                    Button("Reset") {
+                        viewStore.send(.resetButtonTapped)
+                    }
+                    .font(.largeTitle)
+                    .padding()
+                    .background(Color.black.opacity(0.1))
+                    .cornerRadius(10)
+                    
                     Button("+") {
                         viewStore.send(.incrementButtonTapped)
                     }
@@ -78,7 +86,7 @@ struct CounterPreview: PreviewProvider {
         CounterView(
             store: Store(initialState:
                 CounterFeature.State()) {
-                CounterFeature()
+                //CounterFeature()
             }
         )
     }
