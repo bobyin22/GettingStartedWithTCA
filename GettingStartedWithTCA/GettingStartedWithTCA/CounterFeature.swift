@@ -8,8 +8,16 @@
 import ComposableArchitecture
 import SwiftUI
 
-@Reducer
+/*
+ 用戶操作 → Action → Reducer → State 更新 → 視圖更新
+                   ↳ Effect → Action → Reducer
+ */
+
+//MARK: - 核心功能部分
+@Reducer // 這就像是一個管理員，負責管理所有的動作和狀態
 struct CounterFeature {
+    
+    // 1. 狀態 (State) - 就像是一個容器，存放所有數據
     struct State {
         var count = 0
         var fact: String?
@@ -17,18 +25,22 @@ struct CounterFeature {
         var isTimerRunning = false
     }
     
+    //MARK: - 所有可能的操作
+    // 就像遙控器上的按鈕，每個按鈕都做不同的事
     enum Action {
         case decrementButtonTapped
         case incrementButtonTapped
         case resetButtonTapped
         case factButttonTapped
-        case factResponse(fact: String)
+        case factResponse(fact: String) // 收到趣味知識的回應
         case toggleTimerButtonTapped
         case timerTick
     }
     
+    // 用來標識計時器的ID，方便控制它
     enum CancelID { case timer }
     
+    //MARK: - 核心邏輯處理
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -47,7 +59,6 @@ struct CounterFeature {
             case .factButttonTapped:
                 state.fact = nil
                 state.isLoading = true
-                
                 return .run { [count = state.count] send in
                     // ✅ Do async work in here, and send actions back into the system.
                     let (data, _) = try await URLSession.shared
@@ -87,6 +98,7 @@ struct CounterFeature {
 
 extension CounterFeature.State: Equatable {}
 
+//MARK: - 畫面部分
 struct CounterView: View {
     let store: StoreOf<CounterFeature>
     
