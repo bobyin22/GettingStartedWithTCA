@@ -40,6 +40,9 @@ struct CounterFeature {
     // 用來標識計時器的ID，方便控制它
     enum CancelID { case timer }
     
+    @Dependency(\.continuousClock) var clock
+    @Dependency(\.numberFact) var numberFact
+    
     //MARK: - 核心邏輯處理
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -60,11 +63,7 @@ struct CounterFeature {
                 state.fact = nil
                 state.isLoading = true
                 return .run { [count = state.count] send in
-                    // ✅ Do async work in here, and send actions back into the system.
-                    let (data, _) = try await URLSession.shared
-                        .data(from: URL(string: "http://numbersapi.com/\(count)")!)
-                    let fact = String(decoding: data, as: UTF8.self)
-                    
+                    let fact = try await numberFact.fetch(count)
                     await send(.factResponse(fact: fact))
                 }
             case let .factResponse(fact: fact):
